@@ -1,0 +1,206 @@
+java
+
+package com.example.firstprogramlab;
+
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
+import android.webkit.WebView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView textView;
+    private Button startActivityButton, changeTextButton, toggleButton, clearTextButton;
+    private EditText editText;
+    private RadioButton saveDataRadioButton, dontSaveDataRadioButton;
+    private boolean saveData = false;
+
+    private WebView wv;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Initialize UI elements
+        textView = findViewById(R.id.textView);
+        startActivityButton = findViewById(R.id.startActivityButton);
+        changeTextButton = findViewById(R.id.changeTextButton);
+        toggleButton = findViewById(R.id.toggleButton);
+        clearTextButton = findViewById(R.id.clearTextButton);
+        editText = findViewById(R.id.editText);
+        saveDataRadioButton = findViewById(R.id.saveDataRadioButton);
+        dontSaveDataRadioButton = findViewById(R.id.dontSaveDataRadioButton);
+
+        // Set button listeners
+        startActivityButton.setOnClickListener(v -> startNewActivity());
+        changeTextButton.setOnClickListener(v -> changeText());
+        toggleButton.setOnClickListener(v -> toggleVisibility());
+        clearTextButton.setOnClickListener(v -> editText.setText(""));
+
+        // Set radio button listener
+        saveDataRadioButton.setOnCheckedChangeListener((compoundButton, b) -> saveData = b);
+        dontSaveDataRadioButton.setOnCheckedChangeListener((compoundButton, b) -> saveData = !b);
+
+        // Restore saved data if available
+        if (savedInstanceState != null) {
+            textView.setText(savedInstanceState.getString("text"));
+            editText.setText(savedInstanceState.getString("editTextValue"));
+        }
+
+        // WebView
+        wv=findViewById(R.id.web1);
+        wv.loadUrl("https://github.com");
+        wv.getSettings().setJavaScriptEnabled(true);
+        wv.setWebViewClient(new WebViewClient());
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateTextView("onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateTextView("onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        updateTextView("onPause");
+        if (saveData) {
+            super.onSaveInstanceState(new Bundle()); // Call the parent class method
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        updateTextView("onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        updateTextView("onDestroy");
+    }
+
+    // Update textview with current lifecycle state
+    private void updateTextView(String state) {
+        String currentText = textView.getText().toString();
+        textView.setText(currentText + "\n" + state);
+    }
+
+    // Start a new activity to demonstrate lifecycle flow
+    private void startNewActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    // Change the text displayed in the TextView
+    private void changeText() {
+        textView.setText("Activity lifecycle in action!");
+    }
+
+    // Toggle the visibility of another UI element
+    private void toggleVisibility() {
+        editText.setVisibility(editText.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+    }
+
+    // Save activity state
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("text", textView.getText().toString());
+        outState.putString("editTextValue", editText.getText().toString());
+    }
+}
+
+
+
+xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Activity Lifecycle" />
+
+    <Button
+        android:id="@+id/startActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Activity" />
+
+    <Button
+        android:id="@+id/changeTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Text" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show/Hide" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter text" />
+
+    <Button
+        android:id="@+id/clearTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Text" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/saveDataRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Data" />
+
+        <RadioButton
+            android:id="@+id/dontSaveDataRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't Save Data" />
+    </RadioGroup>
+
+    <WebView
+        android:id="@+id/web1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp" />
+
+</LinearLayout>
